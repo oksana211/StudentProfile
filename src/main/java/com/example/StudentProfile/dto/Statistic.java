@@ -1,5 +1,9 @@
 package com.example.StudentProfile.dto;
 
+import com.example.StudentProfile.models.User;
+
+import java.util.List;
+
 public class Statistic {
 
     private int goldenRunning;
@@ -11,6 +15,16 @@ public class Statistic {
     private int silverPullUp;
     private int bronzePullUp;
     private int ironPullUp;
+
+    private List<PersonalStatistic> sortedUsers;
+
+    public List<PersonalStatistic> getSortedUsers() {
+        return sortedUsers;
+    }
+
+    public void setSortedUsers(List<PersonalStatistic> sortedUsers) {
+        this.sortedUsers = sortedUsers;
+    }
 
     public int getGoldenRunning() {
         return goldenRunning;

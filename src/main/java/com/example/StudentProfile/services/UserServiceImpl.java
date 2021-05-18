@@ -2,6 +2,7 @@ package com.example.StudentProfile.services;
 
 import com.example.StudentProfile.config.jwt.JwtProvider;
 import com.example.StudentProfile.dto.CustomUserDetails;
+import com.example.StudentProfile.dto.PersonalStatistic;
 import com.example.StudentProfile.dto.Statistic;
 import com.example.StudentProfile.exceptions.ErrorMessages;
 import com.example.StudentProfile.exceptions.ResourceNotFoundException;
@@ -16,13 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserDetailsService {
@@ -64,6 +63,11 @@ public class UserServiceImpl implements UserDetailsService {
     public Boolean compareId(String header, Long id){
         String token = header.substring(7);
         return jwtProvider.getIdFromToken(token).equals(id.toString());
+    }
+
+    public Boolean isAdmin(String header){
+        String token = header.substring(7);
+        return jwtProvider.getRoleFromToken(token).equals("admin");
     }
 
     public List<User> findAll(){
@@ -179,8 +183,62 @@ public class UserServiceImpl implements UserDetailsService {
         statistic.setSilverPullUp(silverPullUp);
         statistic.setGoldenPullUp(goldenPullUp);
 
+        statistic.setSortedUsers(sortUsers(users));
         return statistic;
     }
+
+    public List<PersonalStatistic> sortUsers(List<User> users){
+        List<PersonalStatistic> personalStatistics = getPersonalStatisticArray(users);
+        Collections.sort(personalStatistics);
+        Collections.reverse(personalStatistics);
+        return personalStatistics;
+    }
+
+    public List<PersonalStatistic> getPersonalStatisticArray(List<User> users){
+        List<PersonalStatistic> personalStatistics = new ArrayList<>();
+        for(int i = 0; i < users.size(); i++){
+            User user = users.get(i);
+            if(user.getRole().getName().equals("student")){
+                PersonalStatistic ps = getPersonalStatistic(user);
+                personalStatistics.add(ps);
+            }
+
+        }
+        return personalStatistics;
+    }
+
+    public PersonalStatistic getPersonalStatistic(User user){
+
+        List<Integer> st = countMedals(user);
+        return new PersonalStatistic(user, st.get(0), st.get(1), st.get(2),st.get(3));
+    }
+
+
+    public List<Integer> countMedals(User user){
+        List<Integer> results = new ArrayList<>();
+        int iron = 0;
+        int bronze = 0;
+        int silver = 0;
+        int golden = 0;
+        for(Session s: user.getSessions()){
+            for(Activity a: s.getActivities()){
+                if(a.getResult().equals("Iron"))
+                    iron++;
+                if(a.getResult().equals("Bronze"))
+                    bronze++;
+                if(a.getResult().equals("Silver"))
+                    silver++;
+                if(a.getResult().equals("Golden"))
+                    golden++;
+            }
+        }
+        results.add(iron);
+        results.add(bronze);
+        results.add(silver);
+        results.add(golden);
+        return results;
+    }
+
 
 
     public List<String> results(User user, List<Activity> activities){

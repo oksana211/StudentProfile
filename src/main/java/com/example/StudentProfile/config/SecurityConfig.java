@@ -5,6 +5,7 @@ import com.example.StudentProfile.config.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -29,13 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests()
-//                .antMatchers("/api/v1/user/*").hasAuthority("student")
-//                .antMatchers("/api/v1/admin/users/*").hasAuthority("admin")
-//                .antMatchers("/api/v1/users/*").permitAll() //.hasAuthority("student")
-                .antMatchers("/api/v1/admin/users/*", "/api/v1/admin/backup","/api/v1/admin/statistic").hasAuthority("admin")
+                .and()
+                .authorizeRequests()
+//                .antMatchers("/api/v1/users").permitAll()
                 .antMatchers("/api/v1/signup", "/api/v1/signin").permitAll()
-                .antMatchers("/api/v1/users/*", "/api/v1/users").permitAll() //.hasAuthority("student")
 
                 .anyRequest().authenticated()
                 .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)

@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.example.StudentProfile.services.UserServiceImpl.backup2;
 
+@CrossOrigin(origins = "http://localhost:8082")
 //@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api/v1/")

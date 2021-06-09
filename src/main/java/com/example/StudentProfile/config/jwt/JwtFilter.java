@@ -29,21 +29,19 @@ public class JwtFilter extends GenericFilterBean {
     private UserServiceImpl customUserDetailsService;
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        logger.info("do filter...");
+    public void doFilter(ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain filterChain)
+            throws IOException, ServletException {
         String token = getTokenFromRequest((HttpServletRequest) servletRequest);
 
-        logger.info("tooooken:  " + token);
         if (token != null && jwtProvider.validateToken(token)) {
             String userId = jwtProvider.getIdFromToken(token);
-            logger.info("iddddd:  " + userId);
-            CustomUserDetails customUserDetails = customUserDetailsService.loadUserById(userId);
-            logger.info("customUserDetails:  " + customUserDetails.getAuthorities());
-
-//            String login = jwtProvider.getLoginFromToken(token);
-//            logger.info("loooogin:  " + login);
-//            CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(login);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            CustomUserDetails customUserDetails =
+                    customUserDetailsService.loadUserById(userId);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(customUserDetails,
+                            null, customUserDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(servletRequest, servletResponse);
